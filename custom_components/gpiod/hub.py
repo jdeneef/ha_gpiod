@@ -124,6 +124,9 @@ class Hub:
             consumer = self.manufacturer,
             config = self._config
         )
+        for port in self._config:
+            if self._config[port].direction == Direction.INPUT:
+                self._entities[port].set(self.update(port))
 
     async def listen(self):
         while True:
