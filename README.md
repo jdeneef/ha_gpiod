@@ -44,6 +44,11 @@ switch:
         port: 11
       - name: "Buzzer"
         port: 8
+      - name: "Door Relay"
+        port: 7
+        invert_logic: true
+        bias: "OFF"
+        drive_mode: "OPEN_DRAIN"
 
 binary_sensor:
   - platform: gpiod
@@ -98,6 +103,8 @@ Key | Required | Default | Type | Description
 `port` | yes | | integer | the GPIO port to be used
 `unique_id` | no | generated | string | An ID that uniquely identifies the switch. Set this to a unique value to allow customization through the UI, auto generated when not set manually in config
 `invert_logic` | no | `false` | boolean | If true, inverts the output logic to ACTIVE LOW
+drive_mode | no | `PUSH_PULL` | string | The drive mode of the port, `PUSH_PULL`,  `OPEN_DRAIN` `OPEN_SOURCE`
+bias | no | `UP` | string | The bias of the port, `OFF`, `PULL_UP`, `PULL_DOWN`
 
 ## Cover
 
