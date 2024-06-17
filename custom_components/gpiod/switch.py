@@ -8,7 +8,8 @@ _LOGGER = logging.getLogger(__name__)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.components.switch import PLATFORM_SCHEMA, SwitchEntity
+from homeassistant.helpers.config_validation import PLATFORM_SCHEMA
+from homeassistant.components.switch import SwitchEntity
 from homeassistant.const import CONF_SWITCHES, CONF_NAME, CONF_PORT, CONF_UNIQUE_ID
 CONF_INVERT_LOGIC="invert_logic"
 DEFAULT_INVERT_LOGIC = False
@@ -42,8 +43,8 @@ async def async_setup_platform(
     hass: HomeAssistant,
     config: ConfigType,
     async_add_entities: AddEntitiesCallback,
-    discovery_info: DiscoveryInfoType | None = None) -> None:
-    
+        discovery_info: DiscoveryInfoType | None = None) -> None:
+
     _LOGGER.debug(f"setup_platform: {config}")
     hub = hass.data[DOMAIN]
     if not hub._online:
@@ -72,7 +73,9 @@ class GPIODSwitch(SwitchEntity):
     def __init__(self, hub, name, port, unique_id, invert_logic, bias, drive):
         _LOGGER.debug(f"GPIODSwitch init: {port} - {name} - {unique_id} - invert_logic: {invert_logic} - bias: {bias} - drive: {drive}")
         self._hub = hub
-        self._attr_name = name
+        # self._attr_name = name
+        self.name = name
+        self.unique_id = unique_id
         self._port = port
         self._attr_unique_id = unique_id
         self._invert_logic = invert_logic
@@ -95,14 +98,14 @@ class GPIODSwitch(SwitchEntity):
 
     def turn_on(self, **kwargs):
         self._hub.turn_on(self._port)
-        self._is_on = True
+        self.is_on = True
         self.schedule_update_ha_state()
 
     def turn_off(self, **kwargs):
         self._hub.turn_off(self._port)
-        self._is_on = False
+        self.is_on = False
         self.schedule_update_ha_state()
 
     def update(self):
-        self._is_on = self._hub.update(self._port)
+        self.is_on = self._hub.update(self._port)
         self.schedule_update_ha_state(False)
