@@ -114,7 +114,7 @@ class GPIODCover(CoverEntity):
 
     # dirty hack to enable reuse of switch
     def is_on(self):
-        return self.is_closed
+        return False
 
     def update(self):
         self.is_closed = self._hub.update(self._state_port)
