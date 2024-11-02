@@ -2,6 +2,8 @@
 
 This HACS integration is used to address GPIO (especially and only tested for RaspberryPi) using libgpiod and python gpiod >=v2.02 since RPI.gpio is no longer supported. I created this for my own use, and to understand a custom integration, but since it is working on Raspberry pi feel free to use.
 
+**This work is copied over to the original HACS [RPI_GPIO](https://github.com/thecode/ha-rpi_gpio) integration. You should most likely check the that integration instead of this one. I'm keeping this repository for my own fun and use for now.**
+
 **This is working in my homeassistant environment, that's it. Shared for testing and usage at your own risk!**
 
 `ha_gpiod` is based on [ha-rpi_gpio](https://github.com/thecode/ha-rpi_gpio), which was already adapted for `gpiod` in [ha-gpio](https://codeberg.org/raboof/ha-gpio) and rewritten from scratch by me ..
@@ -84,10 +86,8 @@ Key | Required | Default | Type | Description
 `port` | yes | | integer | the GPIO port to be used
 `unique_id` | no | generated | string  | An ID that uniquely identifies the sensor. Set this to a unique value to allow customization through the UI, auto generated when not set manually in config
 `debounce` | no | `50` | integer | The time in milliseconds for port debouncing
-`active_low` | no | `false` | boolean | If `true`, input of `gpio` is inverted, `active_low` results in `on`
-`invert_logic` | *backwards compatibility* | | boolean | see `active_low`, might be removed in the future
-`bias` | no | `PULL_UP` | string  | control bias setting of GPIO, used to define the electrical state of a GPIO line when not actively driven; `PULL_UP` set weak pull-up resistor on the line, ensuring that the line is pulled to a high level (3.3V or 5V) when not actively driven; `PULL_DOWN` sets weak pull-down resistor to pull to low level (0V), `DISABLED` remains floating, `AS_IS` not changed
-`pull_mode` | *backwards compatibility* | | string  | see `bias`, might be removed in the future
+`active_low` or `invert_logic` | no | `false` | boolean | If `true`, input of `gpio` is inverted, `active_low` results in `on`; `invert_logic` kept for backwards compatibility
+`bias` or `pull_mode` | no | `PULL_UP` | string  | control bias setting of GPIO, used to define the electrical state of a GPIO line when not actively driven; `PULL_UP` set weak pull-up resistor on the line, ensuring that the line is pulled to a high level (3.3V or 5V) when not actively driven; `PULL_DOWN` sets weak pull-down resistor to pull to low level (0V), `DISABLED` remains floating, `AS_IS` not changed; `pull_mode` kept for backwards compatibility
 
 
 ## Switch
@@ -103,10 +103,8 @@ Key | Required | Default | Type | Description
 `name` | yes | | string | The name for the switch entity
 `port` | yes | | integer | the GPIO port to be used
 `unique_id` | no | generated | string | An ID that uniquely identifies the switch. Set this to a unique value to allow customization through the UI, auto generated when not set manually in config
-`active_low` | no | `false` | boolean | If `true`, output of `gpio` is inverted, `active_low` switches `on`
-`invert_logic` | *backwards compatibility* | | boolean | see `active_low`, might be removed in the future
-`bias` | no | `AS_IS` | string  | Type of internal pull resistor to use: `PULL_UP` - pull-up resistor, `PULL_DOWN` - pull-down resistor, `AS-IS` no change
-`pull_mode`|*backwards compatibility*| |string|see `bias`, might be removed in the future
+`active_low` or `invert_logic`| no | `false` | boolean | If `true`, output of `gpio` is inverted, `active_low` switches `on`; `invert_logic` kept for backwards compatibility
+`bias` or `pull_mode` | no | `AS_IS` | string  | Type of internal pull resistor to use: `PULL_UP` - pull-up resistor, `PULL_DOWN` - pull-down resistor, `AS-IS` no change; `pull_mode` kept for backwards compatibility
 `drive`|no| `PUSH_PULL`|string | control drive configuration of the GPIO, determines how the line behaves when it is set to output mode; `PUSH_PULL`, GPIO line can both source and sink current, can actively drive the line to both high and low states. `OPEN-DRAIN`, GPPIO can only sink current (drive the line to low) and is otherwise left floating, and `OPEN-SOURCE` the reverse.
 `persistent` | no | `false` | boolean | If true, the switch state will be persistent in HA and will be restored if HA restart / crash.
 
@@ -120,19 +118,15 @@ Covers consist of a switch for triggering cover motor, and a state sensor for de
 Key | Required | Default | Type | Description
 --- | --- | --- | --- | ---
 `name` | yes | | string | The name for the cover entity
-`relay_port`|yes| |integer|Relay switch gpio switching cover motor
-`relay_pin`|*backwards compatibility*| |integer|see `relay_port`, might be removed in the future
+`relay_port` or `relay_pin`|yes| |integer|Relay switch gpio switching cover motor; `relay_pin` kept for backwards compatibility
 `relay_time`|no|`200` |integer|Time in milliseconds relay switch will be switched to open/close cover
-`relay_active_low`|no | `false`| boolean| invert input for `relay_port`
-`invert_relay`|*backwards compatibility*| | boolean|see `relay_active_low`, might be removed in the future
+`relay_active_low` or `invert_relay`|no | `false`| boolean| invert input for `relay_port`; `invert_relay` kept for backwards compatibility
 `relay_bias` | no | `AS_IS` | string  | Type of internal pull resistor to use: `PULL_UP` - pull-up resistor, `PULL_DOWN` - pull-down resistor
 `relay_drive`|no|`PUSH_PULL`|string|set `relay_pin` `drive_mode`, options: `OPEN_DRAIN`, `OPEN_SOURCE`, `PUSH_PULL`
-`state_port`|yes| | integer|State port for opened/closed status of cover
-`state_pin`|*backwards compatibility*| | integer|see `state_port`, might be removed in the future
-`state_bias` | no | `PULL_UP` | string  | Type of internal pull resistor to use: `PULL_UP` - pull-up resistor, `PULL_DOWN` - pull-down resistor
-`state_pull_mode`|*backwards compatibility*| |string|see `state_bias`, might be removed in the future
-`state_active_low`|no | `false`| boolean| invert output for state pin
-`invert_state`|*backwards compatibility*| |boolean|see `state_active_low`, might be removed in the future
+`state_port` or `state_pin`|yes| | integer|State port for opened/closed status of cover; `state_pin` kept for backwards compatibility
+`state_bias` or `state_pull_mode`| no | `PULL_UP` | string  | Type of internal pull resistor to use: `PULL_UP` - pull-up resistor, `PULL_DOWN` - pull-down resistor; `state_pull_mode` kept for backwards compatibility
+`state_active_low` or `invert_state`|no | `false`| boolean| invert output for state pin; `invert_state` kept for backwards compatibility
+`state_debounce`|no | 50 | integer | debounce parameter for the cover state sensor
 `unique_id` | no | generated | string | An ID that uniquely identifies the switch. Set this to a unique value to allow customization through the UI, auto generated when not set manually in config
 
 

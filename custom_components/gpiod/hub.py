@@ -163,12 +163,15 @@ class Hub:
 
     def add_sensor(self, entity, port, active_low, bias, debounce) -> None:
         _LOGGER.debug(f"in add_sensor {port}")
-        # read current status of the sensor
-        line = self._chip.request_lines({ port: {} })
-        value = True if line.get_value(port) == Value.ACTIVE else False
-        entity.is_on = True if value ^ active_low else False
+        line = self._chip.request_lines({ port: gpiod.LineSettings(
+            direction = Direction.INPUT, 
+            bias = BIAS[bias], 
+            active_low = active_low
+        ) })
+        line_value = line.get_value(port)
+        entity.is_on = True if line_value == Value.ACTIVE else False
         line.release()
-        _LOGGER.debug(f"current value for port {port}: {entity.is_on}")
+        _LOGGER.debug(f"current value for port {port}: {line_value}")
 
         self._entities[port] = entity
         self._config[port] = gpiod.LineSettings(
@@ -178,7 +181,7 @@ class Hub:
             active_low = active_low,
             debounce_period = timedelta(milliseconds=debounce),
             event_clock = Clock.REALTIME,
-            output_value = Value.ACTIVE if entity.is_on else Value.INACTIVE,
+            output_value = line_value
         )
         self._edge_events = True
 
@@ -186,9 +189,39 @@ class Hub:
         return self._lines.get_value(port) == Value.ACTIVE
 
     def add_cover(self, entity, relay_port, relay_active_low, relay_bias, relay_drive, 
-                  state_port, state_bias, state_active_low) -> None:
+                  state_port, state_bias, state_active_low, state_debounce) -> None:
         _LOGGER.debug(f"in add_cover {relay_port} {state_port}")
-        self.add_switch(entity, relay_port, relay_active_low, relay_bias, relay_drive)
-        self.add_sensor(entity, state_port, state_active_low, state_bias, 50)
-        self.update_lines()
+
+        # add switch
+        self._entities[relay_port] = entity
+        self._config[relay_port] = gpiod.LineSettings(
+            direction = Direction.OUTPUT,
+            bias = BIAS[relay_bias],
+            drive = DRIVE[relay_drive],
+            active_low = relay_active_low,
+            output_value = Value.INACTIVE
+        )
+
+        # add sensor
+        line = self._chip.request_lines({ state_port: gpiod.LineSettings(
+            direction = Direction.INPUT, 
+            bias = BIAS[state_bias], 
+            active_low = state_active_low
+        ) })
+        line_value = line.get_value(state_port)
+        entity.is_closed = True if line_value == Value.ACTIVE else False
+        line.release()
+        _LOGGER.debug(f"current value for port {state_port}: {line_value}")
+
+        self._entities[state_port] = entity
+        self._config[state_port] = gpiod.LineSettings(
+            direction = Direction.INPUT,
+            edge_detection = Edge.BOTH,
+            bias = BIAS[state_bias],
+            active_low = state_active_low,
+            debounce_period = timedelta(milliseconds=state_debounce),
+            event_clock = Clock.REALTIME,
+            output_value = line_value
+        )
+        self._edge_events = True
 

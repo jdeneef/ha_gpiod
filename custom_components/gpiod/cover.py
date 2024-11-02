@@ -30,6 +30,8 @@ CONF_STATE_BIAS = "state_pull_mode"
 DEFAULT_STATE_BIAS = "PULL_UP"
 CONF_STATE_ACTIVE_LOW = "state_active_low"
 DEFAULT_STATE_ACTIVE_LOW = False
+CONF_STATE_DEBOUNCE = "state_debounce"
+DEFAULT_STATE_DEBOUNCE = 50
 
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
@@ -48,6 +50,7 @@ PLATFORM_SCHEMA = vol.All(
                     vol.Required(vol.Any(CONF_STATE_PORT,"state_pin")): cv.positive_int,
                     vol.Optional(vol.Any(CONF_STATE_BIAS, "state_pull_mode")): vol.In(BIAS.keys()),
                     vol.Optional(vol.Any(CONF_STATE_ACTIVE_LOW, "invert_state")): cv.boolean,
+                    vol.Optional(CONF_STATE_DEBOUNCE, default=DEFAULT_STATE_DEBOUNCE): cv.positive_int,
                     vol.Optional(CONF_UNIQUE_ID): cv.string,
                 }]
             )
@@ -81,6 +84,7 @@ async def async_setup_platform(
                 cover.get(CONF_STATE_PORT) or cover.get("state_pin"),
                 cover.get(CONF_STATE_BIAS) or cover.get("state_bias") or DEFAULT_STATE_BIAS,
                 cover.get(CONF_STATE_ACTIVE_LOW) or cover.get("invert_state") or DEFAULT_STATE_ACTIVE_LOW,
+                cover.get(CONF_STATE_DEBOUNCE),
                 cover.get(CONF_UNIQUE_ID) or f"{DOMAIN}_{cover.get(CONF_RELAY_PORT) or cover.get("relay_pin")}_{cover[CONF_NAME].lower().replace(' ', '_')}",
             )
         )
@@ -91,7 +95,7 @@ class GPIODCover(CoverEntity):
     should_poll = False
 
     def __init__(self, hub, name, relay_port, relay_time, relay_active_low, relay_bias, relay_drive,
-                 state_port, state_bias, state_active_low, unique_id):
+                 state_port, state_bias, state_active_low, state_debounce, unique_id):
         _LOGGER.debug(f"GPIODCover init: {relay_port}:{state_port} - {name} - {unique_id} - {relay_time}")
         self._hub = hub
         self.name = name
@@ -103,18 +107,16 @@ class GPIODCover(CoverEntity):
         self._state_port = state_port
         self._state_bias = state_bias
         self._state_active_low = state_active_low
+        self._state_debounce = state_debounce
         self.unique_id = unique_id
         self._attr_is_closed = False != state_active_low
 
     async def async_added_to_hass(self) -> None:
         await super().async_added_to_hass()
         self._hub.add_cover(self, self._relay_port, self._relay_active_low, self._relay_bias, 
-                            self._relay_drive, self._state_port, self._state_bias, self._state_active_low)
+                            self._relay_drive, self._state_port, self._state_bias, 
+                            self._state_active_low, self._state_debounce)
         self.async_write_ha_state()
-
-    # dirty hack to enable reuse of switch
-    def is_on(self):
-        return False
 
     def update(self):
         self.is_closed = self._hub.update(self._state_port)
