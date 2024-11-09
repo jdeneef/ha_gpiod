@@ -161,16 +161,20 @@ class Hub:
         _LOGGER.debug(f"in turn_off")
         self._lines.set_value(port, Value.INACTIVE)
 
-    def add_sensor(self, entity, port, active_low, bias, debounce) -> None:
-        _LOGGER.debug(f"in add_sensor {port}")
+    def _get_sensor_init_value(self, port, bias, active_low):
         line = self._chip.request_lines({ port: gpiod.LineSettings(
             direction = Direction.INPUT, 
             bias = BIAS[bias], 
             active_low = active_low
         ) })
         line_value = line.get_value(port)
-        entity.is_on = True if line_value == Value.ACTIVE else False
         line.release()
+        return line_value
+
+    def add_sensor(self, entity, port, active_low, bias, debounce) -> None:
+        _LOGGER.debug(f"in add_sensor {port}")
+        line_value = self._get_sensor_init_value(port, bias, active_low)
+        entity.is_on = True if line_value == Value.ACTIVE else False
         _LOGGER.debug(f"current value for port {port}: {line_value}")
 
         self._entities[port] = entity
@@ -203,14 +207,8 @@ class Hub:
         )
 
         # add sensor
-        line = self._chip.request_lines({ state_port: gpiod.LineSettings(
-            direction = Direction.INPUT, 
-            bias = BIAS[state_bias], 
-            active_low = state_active_low
-        ) })
-        line_value = line.get_value(state_port)
+        line_value = self._get_sensor_init_value(state_port, state_bias, state_active_low)
         entity.is_closed = True if line_value == Value.ACTIVE else False
-        line.release()
         _LOGGER.debug(f"current value for port {state_port}: {line_value}")
 
         self._entities[state_port] = entity

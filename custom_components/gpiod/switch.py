@@ -101,14 +101,10 @@ class GPIODSwitch(SwitchEntity, RestoreEntity):
     async def async_turn_on(self, **kwargs: Any) -> None:
         self._hub.turn_on(self._port)
         self.is_on = True
-        self.async_write_ha_state()
+        self.schedule_update_ha_state(False)
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         self._hub.turn_off(self._port)
         self.is_on = False
-        self.async_write_ha_state()
-
-    def update(self):
-        self.is_on = self._hub.update(self._port)
         self.schedule_update_ha_state(False)
 
