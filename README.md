@@ -1,16 +1,16 @@
 # HomeAssistant HACS custom RPI GPIOD integration
 
-This HACS integration is used to address GPIO (especially and only tested for RaspberryPi) using libgpiod and python gpiod >=v2.02 since RPI.gpio is no longer supported. I created this for my own use, and to understand a custom integration, but since it is working on Raspberry pi feel free to use.
+This HACS integration is used to address GPIO (especially and only tested for RaspberryPi) using libgpiod and python gpiod >=v2.02 since RPI.gpio is no longer supported. I created this for my own use, and to learn how to build a custom integration, but since it is working on Raspberry Pi feel free to use.
 
-**This work is copied over to the original HACS [RPI_GPIO](https://github.com/thecode/ha-rpi_gpio) integration. You should most likely check the that integration instead of this one. I'm keeping this repository for my own fun and use for now.**
+> :bulb: The code of this custom component upto v1.4.5 is copied over to the original HACS [RPI_GPIO](https://github.com/thecode/ha-rpi_gpio) gpio integration. You should most likely check and use that integration instead of this one. I'm keeping this repository for my own fun and use.
 
-**This is working in my homeassistant environment, that's it. Shared for testing and usage at your own risk!**
+> :warning: This is working in my homeassistant environment. Shared for testing. Use at your own risk. :+1:
 
-`ha_gpiod` is based on [ha-rpi_gpio](https://github.com/thecode/ha-rpi_gpio), which was already adapted for `gpiod` in [ha-gpio](https://codeberg.org/raboof/ha-gpio) and rewritten from scratch by me ..
+`ha_gpiod` is based on [ha-rpi_gpio](https://github.com/thecode/ha-rpi_gpio), which was already adapted for `gpiod` in [ha-gpio](https://codeberg.org/raboof/ha-gpio) and rewritten from scratch for `gpiod` by me. Just recently this code is copied back to [ha-rpi_gpio](https://github.com/thecode/ha-rpi_gpio)
 
 # Installation
 Via HACS: add as custom repository from github using this github https://github.com/jdeneef/ha_gpiod/ (HACS => integrations => 3-dots menu => custom repositories, enter repository URL, select "Integrations" in Category drop-down, go back to hacs, install gpiod component, reboot, add config, reboot).  
-If you run into errors, ensure HACS is up-to-date, [re-install HACS](https://hacs.xyz/docs/setup/download) to update it if needed.
+If you run into errors, ensure HACS is up-to-date.
 
 # Usage
 The `gpiod` platform will be initialized using the path to the gpio chip. When path is not in the config `/dev/gpiochip[0-5]` are tested for a gpiodevice having `pinctrl`, in sequence `[0,4,1,2,3,5]`. So with a raspberry pi you should be OK to leave the path empty.
@@ -86,9 +86,10 @@ Key | Required | Default | Type | Description
 `port` | yes | | integer | the GPIO port to be used
 `unique_id` | no | generated | string  | An ID that uniquely identifies the sensor. Set this to a unique value to allow customization through the UI, auto generated when not set manually in config
 `debounce` | no | `50` | integer | The time in milliseconds for port debouncing
-`active_low` or `invert_logic` | no | `false` | boolean | If `true`, input of `gpio` is inverted, `active_low` results in `on`; `invert_logic` kept for backwards compatibility
+`active_low` or `invert_logic`[^1] | no | `false` | boolean | If `true`, input of `gpio` is inverted, `active_low` results in `on`; `invert_logic` kept for backwards compatibility
 `bias` or `pull_mode` | no | `PULL_UP` | string  | control bias setting of GPIO, used to define the electrical state of a GPIO line when not actively driven; `PULL_UP` set weak pull-up resistor on the line, ensuring that the line is pulled to a high level (3.3V or 5V) when not actively driven; `PULL_DOWN` sets weak pull-down resistor to pull to low level (0V), `DISABLED` remains floating, `AS_IS` not changed; `pull_mode` kept for backwards compatibility
 
+[^1]: In `ha_gpiod` the `gpiod` terminology is used as default, but the original `ha-rpi_gpio` config parameters are maintained for backwards compatibility. Using the `gpiod` terminology helps in understanding what the `libgpiod` is really doing.
 
 ## Switch
 

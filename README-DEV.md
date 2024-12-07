@@ -47,15 +47,24 @@ tail home-assistant.log
 ```
 
 ## Documentation
-Pushing to github to verify the markdown was a bit tiresome, [mmark](https://mmark.miek.nl/) helps out, really nice cli markdown renderer.
+Pushing to github to verify the markdown was a bit tiresome:
 
 ```bash
 # render to html
-mmark -html README.md > /tmp/mmark.html
-# or with styling
-mmark -css ~/Projects/markdown.css -html README.md > /tmp/mmark.html
+md2html README.md
 # open in default browser
-xdg-open /tmp/mmark.html
+xdg-open README.html
+# monitor
+echo README.md | entr md2html README.md # and refresh from browser
+```
+
+With ``md2html``:
+```bash
+#!/bin/sh
+
+bn=`basename "$1" ".md"`
+pandoc --standalone --embed-resource -c ~/Projects/github-markdown.css \
+  -f gfm -t html5 -V "pagetitle:$bn" $1 > $bn.html
 ```
 
 ### Changelog
