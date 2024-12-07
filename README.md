@@ -2,9 +2,9 @@
 
 This HACS integration is used to address GPIO (especially and only tested for RaspberryPi) using libgpiod and python gpiod >=v2.02 since RPI.gpio is no longer supported. I created this for my own use, and to learn how to build a custom integration, but since it is working on Raspberry Pi feel free to use.
 
-> :bulb: The code of this custom component upto v1.4.5 is copied over to the original HACS [RPI_GPIO](https://github.com/thecode/ha-rpi_gpio) gpio integration. You should most likely check and use that integration instead of this one. I'm keeping this repository for my own fun and use.
+:bulb: The code of this custom component upto v1.4.5 is copied over to the original HACS [RPI_GPIO](https://github.com/thecode/ha-rpi_gpio) gpio integration. You should most likely check and use that integration instead of this one. I'm keeping this repository for my own fun and use.
 
-> :warning: This is working in my homeassistant environment. Shared for testing. Use at your own risk. :+1:
+:warning: This is working in my homeassistant environment. Shared for testing. Use at your own risk.
 
 `ha_gpiod` is based on [ha-rpi_gpio](https://github.com/thecode/ha-rpi_gpio), which was already adapted for `gpiod` in [ha-gpio](https://codeberg.org/raboof/ha-gpio) and rewritten from scratch for `gpiod` by me. Just recently this code is copied back to [ha-rpi_gpio](https://github.com/thecode/ha-rpi_gpio)
 
